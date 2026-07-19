@@ -1,0 +1,7 @@
+"Analysis","Finding"
+"EDA","1908 purchase and 10422 non-purchase sessions; no missing values; right-skewed behavioral measures with high-end outliers."
+"One mean","Mean duration 1194.7 seconds; 95% CI 1161.0 to 1228.5; p = 0.7605 against 1,200 seconds."
+"One proportion","Conversion 15.47%; 95% CI 14.84% to 16.11%; p = 0.1401 against 15%."
+"Two means","Buyers spend 806.2 seconds longer on product pages; 95% CI 696.8 to 915.7; p < .001."
+"Two proportions","Returning-visitor share difference -10.1 percentage points; 95% CI -12.1 to -8.1; p < .001."
+"Regression","r = 0.861, R-squared = 74.1%, Y-hat = 19.30 + 37.04X; slope p < .001."
