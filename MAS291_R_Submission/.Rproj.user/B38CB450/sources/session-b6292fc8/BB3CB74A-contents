@@ -1,0 +1,188 @@
+---
+title: "Statistical Analysis of Online Shopping Behavior and Purchase Conversion"
+subtitle: "MAS291 Computer Project"
+author: |
+  Lương Triều Vỹ – QE200035  
+  Phạm Bửu Thịnh – QE200023  
+  Nguyễn Đức Duy – QE200054  
+  Nguyễn Quốc Vương – QE200066  
+  Đinh Đỗ Gia Huy – QE200022
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    css: styles.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
+                      fig.align = "center", out.width = "90%")
+dir.create("r-library", showWarnings = FALSE, recursive = TRUE)
+.libPaths(c(normalizePath("r-library"), .libPaths()))
+if (!file.exists("results/task1_structure_quality.csv")) source("analysis.R")
+read_result <- function(name) read.csv(file.path("results", name), check.names = FALSE)
+if (!requireNamespace("DT", quietly = TRUE)) {
+  stop("Package 'DT' is required. Run setup_packages.R, then Knit again.")
+}
+```
+
+# Introduction
+
+This project analyzes online shopping sessions from the UCI Online Shoppers Purchasing Intention Dataset. The population of interest is online shopping activity on an e-commerce platform. The observed dataset contains 12,330 independent sessions. Revenue divides the data into 1,908 purchase sessions and 10,422 non-purchase sessions.
+
+The analysis studies engagement duration, conversion, differences between purchase outcomes, and the relationship between product-page count and total product-page duration.
+
+## Full dataset evidence - 12,330 sessions
+
+The table below contains the complete dataset used in the project. `STT` is the sequential row number, while `Session_ID` preserves the session identifier used by the analysis. Use the search box, column filters and page controls to inspect all 12,330 observations without expanding the report vertically.
+
+```{r dataset-evidence}
+dataset_evidence <- read_result("dataset_full_12330.csv")
+DT::datatable(
+  dataset_evidence,
+  rownames = FALSE,
+  filter = "top",
+  class = "stripe hover cell-border compact",
+  options = list(
+    pageLength = 25,
+    lengthMenu = c(10, 25, 50, 100),
+    scrollX = TRUE,
+    autoWidth = TRUE,
+    deferRender = TRUE,
+    search = list(caseInsensitive = TRUE)
+  )
+)
+```
+
+# Task 1 - Exploratory Data Analysis
+
+## Structure and data quality
+
+```{r}
+knitr::kable(read_result("task1_structure_quality.csv"), align = c("l", "r", "l"),
+             table.attr = 'class="report-table"')
+```
+
+There are no missing values. Exact duplicate feature vectors are reported but retained because sessions with identical behavior may still represent genuine observations. Both groups exceed the required minimum of 500 observations.
+
+## Descriptive statistics
+
+```{r}
+task1_stats <- read_result("task1_descriptive_statistics.csv")
+numeric_cols <- vapply(task1_stats, is.numeric, logical(1))
+task1_stats[numeric_cols] <- lapply(task1_stats[numeric_cols], function(x) round(x, 3))
+knitr::kable(task1_stats, table.attr = 'class="report-table wide-table"')
+```
+
+Purchase sessions view more product pages and spend more time on product-related pages on average. Non-purchase sessions have higher bounce and exit rates. Means exceed medians for several behavioral variables, while positive skewness and high-end IQR outliers show strong right-skewness.
+
+## Visualizations
+
+```{r, out.width='48%', fig.show='hold'}
+knitr::include_graphics(c("figures/task1_duration_histogram.png",
+                          "figures/task1_duration_boxplot.png"))
+```
+
+The duration distribution is concentrated at lower values with a long upper tail. Purchase sessions have a larger share in longer-duration intervals, but the extreme observations make the mean less representative than the median alone.
+
+```{r, out.width='48%', fig.show='hold'}
+knitr::include_graphics(c("figures/task1_conversion_by_month.png",
+                          "figures/task1_conversion_by_visitor.png"))
+```
+
+Conversion varies by month and visitor type. These descriptive differences are associations and should not be interpreted as causal effects.
+
+# Task 2 - Inference for One Population
+
+## Population mean
+
+We test whether mean product-page duration differs from 1,200 seconds using a two-sided one-sample t procedure at the 5% significance level.
+
+```{r}
+knitr::kable(read_result("task2_one_mean.csv"), table.attr = 'class="report-table"')
+```
+
+The estimated mean is approximately 1,194.7 seconds. The p-value is greater than 0.05, so there is insufficient evidence that the population mean differs from 1,200 seconds.
+
+## Population proportion
+
+We test whether the conversion proportion differs from 15% using a large-sample two-sided z procedure.
+
+```{r}
+knitr::kable(read_result("task2_one_proportion.csv"), table.attr = 'class="report-table"')
+```
+
+The estimated conversion rate is approximately 15.47%. The p-value is greater than 0.05, so there is insufficient evidence that conversion differs from the selected 15% benchmark.
+
+# Task 3 - Comparison of Two Populations
+
+## Difference between two means
+
+Purchase and non-purchase sessions are compared using Welch's independent-samples t procedure because group sizes and variances differ.
+
+```{r}
+knitr::kable(read_result("task3_two_means.csv"), table.attr = 'class="report-table"')
+```
+
+Purchase sessions spend approximately 806 additional seconds on product-related pages. The difference is statistically significant and practically substantial.
+
+## Difference between two proportions
+
+The returning-visitor proportions of purchase and non-purchase sessions are compared using a pooled z test and an unpooled confidence interval.
+
+```{r}
+knitr::kable(read_result("task3_two_proportions.csv"), table.attr = 'class="report-table"')
+```
+
+The returning-visitor shares differ significantly. This comparison concerns group composition and does not by itself prove that new visitors have a higher individual probability of purchase.
+
+# Task 4 - Simple Linear Regression
+
+X is the number of product-related pages viewed, and Y is total product-page duration in seconds. These variables form an interpretable engagement model: viewing more product pages should generally require more total browsing time.
+
+```{r}
+knitr::include_graphics("figures/task4_scatter_regression.png")
+```
+
+The scatter plot shows a strong positive and approximately linear relationship, with increasing spread at high page counts.
+
+```{r}
+knitr::kable(read_result("task4_regression_model.csv"), table.attr = 'class="report-table"')
+```
+
+The fitted equation is approximately Y-hat = 19.30 + 37.04X. Each additional product page is associated with about 37 additional seconds of product-page time on average. The slope is statistically different from zero. The model measures engagement mechanics and should not be interpreted as a causal model of purchase completion.
+
+## Predictions
+
+```{r}
+knitr::kable(read_result("task4_predictions.csv"), digits = 2,
+             table.attr = 'class="report-table"')
+```
+
+# Task 5 - Final Interpretation
+
+## Key findings
+
+```{r}
+knitr::kable(read_result("task5_key_findings.csv"), table.attr = 'class="report-table"')
+```
+
+The duration difference is both statistically significant and practically large: converted sessions spend roughly 13.4 additional minutes on product pages. The visitor-composition difference is statistically significant but requires cautious interpretation. The regression relationship is practically strong because product-page count explains a large proportion of engagement-time variation. In contrast, the overall mean and conversion rate are close to their selected benchmarks and are not statistically significant.
+
+## Conclusions and implications
+
+```{r}
+knitr::kable(read_result("task5_implications.csv"), table.attr = 'class="report-table"')
+```
+
+## Limitations
+
+The dataset covers anonymized sessions and does not include transaction amount, demographic information, or a repeat-user identifier. Several variables are strongly skewed, and the two purchase groups are unbalanced. The analyses rely on independence and large-sample assumptions. Observational associations do not establish causality; controlled experiments such as A/B tests are required for causal platform decisions.
+
+# Data Source
+
+UCI Machine Learning Repository, Online Shoppers Purchasing Intention Dataset:  
+https://archive.ics.uci.edu/dataset/468/online+shoppers+purchasing+intention+dataset
