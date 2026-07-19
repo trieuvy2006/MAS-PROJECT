@@ -1,0 +1,26 @@
+{
+    "id": "49A7D32A",
+    "path": "D:/prjcomputer/outputs/MAS291_R_Project_Full/setup_packages.R",
+    "project_path": "setup_packages.R",
+    "type": "r_source",
+    "hash": "3729531177",
+    "contents": "",
+    "dirty": false,
+    "created": 1784430563656.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "8,0",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1784431918,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1784431918,
+    "read_only": false,
+    "read_only_alternatives": []
+}

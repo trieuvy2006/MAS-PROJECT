@@ -1,0 +1,92 @@
+body {
+  color: #1f2937;
+}
+
+.main-container {
+  max-width: 1500px !important;
+}
+
+.main-container table:not(.ui-datepicker-calendar) {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #9fb3c8;
+  margin: 14px 0 28px 0;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+.main-container table:not(.ui-datepicker-calendar) thead th {
+  background: #17365d;
+  color: #ffffff;
+  border: 1px solid #7f96ad;
+  padding: 9px 10px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.main-container table:not(.ui-datepicker-calendar) tbody td {
+  border: 1px solid #cbd5e1;
+  padding: 7px 9px;
+  vertical-align: top;
+}
+
+.main-container table:not(.ui-datepicker-calendar) tbody tr:nth-child(even) {
+  background: #eef5fb;
+}
+
+.main-container table:not(.ui-datepicker-calendar) tbody tr:hover {
+  background: #dbeafe;
+}
+
+.main-container table:not(.ui-datepicker-calendar) td:not(:first-child) {
+  text-align: right;
+}
+
+.main-container table:not(.ui-datepicker-calendar) td:last-child {
+  text-align: left;
+}
+
+.dataset-scroll {
+  max-height: 620px;
+  overflow: auto;
+  border: 2px solid #17365d;
+  border-radius: 5px;
+  margin: 16px 0 30px 0;
+  background: #ffffff;
+}
+
+table.dataset-table {
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+}
+
+table.dataset-table td {
+  white-space: nowrap;
+}
+
+table.wide-table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+@media print {
+  .dataset-scroll {
+    max-height: none;
+    overflow: visible;
+    border: 1px solid #9fb3c8;
+  }
+
+  .main-container table:not(.ui-datepicker-calendar) {
+    font-size: 9px;
+  }
+
+  .main-container table:not(.ui-datepicker-calendar) thead th {
+    position: static;
+  }
+}

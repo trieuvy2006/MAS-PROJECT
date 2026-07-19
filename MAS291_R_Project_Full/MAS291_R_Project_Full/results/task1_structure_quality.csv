@@ -1,0 +1,8 @@
+"Measure","Result","Interpretation"
+"Rows",12330,"One row per online session"
+"Original variables",18,"Original UCI variables, including Revenue"
+"Missing cells",0,"No missing values expected"
+"Duplicate rows",125,"Exact duplicate feature vectors; retained for analysis"
+"Purchase sessions",1908,"Revenue = TRUE"
+"Non-purchase sessions",10422,"Revenue = FALSE"
+"Minimum group size",1908,"Exceeds required 500 observations"
