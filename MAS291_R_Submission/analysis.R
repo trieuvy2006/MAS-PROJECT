@@ -103,24 +103,43 @@ dataset_full <- cbind(STT = seq_len(nrow(dataset_full)), dataset_full)
 write.csv(dataset_full, "results/dataset_full_12330.csv", row.names = FALSE)
 
 group_label <- ifelse(shop$Revenue_int == 1, "Purchase", "No purchase")
-group_colors <- c("No purchase" = "#4F81BD", "Purchase" = "#C0504D")
+group_colors <- c("No purchase" = "#4472C4", "Purchase" = "#ED7D31")
+
+excel_plot_theme <- function() {
+  par(bg = "white", fg = "#404040", col.axis = "#404040", col.lab = "#404040",
+      family = "sans", mar = c(5.5, 5, 3.5, 1.5), las = 1)
+}
 
 png("figures/task1_duration_histogram.png", width = 1200, height = 750, res = 130)
+excel_plot_theme()
 breaks <- c(0, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 64000)
 h0 <- hist(shop$ProductRelated_Duration[shop$Revenue_int == 0], breaks = breaks, plot = FALSE)
 h1 <- hist(shop$ProductRelated_Duration[shop$Revenue_int == 1], breaks = breaks, plot = FALSE)
 rates <- rbind(h0$counts / sum(shop$Revenue_int == 0), h1$counts / sum(shop$Revenue_int == 1))
-barplot(rates, beside = TRUE, col = unname(group_colors), border = NA,
+bp <- barplot(rates, beside = TRUE, col = unname(group_colors), border = NA,
         names.arg = c("0-300", "301-600", "601-1,200", "1,201-2,400", "2,401-4,800",
                       "4,801-9,600", "9,601-19,200", "19,201-38,400", "38,401-64,000"),
-        las = 2, ylab = "Proportion", main = "Product-page duration by conversion")
+        las = 2, ylab = "Share of sessions", main = "Product-page duration distribution",
+        ylim = c(0, max(rates) * 1.18), axes = FALSE)
+axis(1, at = colMeans(bp),
+     labels = c("0-300", "301-600", "601-1,200", "1,201-2,400", "2,401-4,800",
+                "4,801-9,600", "9,601-19,200", "19,201-38,400", "38,401-64,000"),
+     las = 2, tick = FALSE, cex.axis = 0.82)
+axis(2, at = seq(0, 0.4, 0.05), labels = paste0(seq(0, 40, 5), "%"))
+abline(h = seq(0, 0.4, 0.05), col = "#D9E1F2", lwd = 1)
 legend("topright", legend = names(group_colors), fill = group_colors, bty = "n")
 dev.off()
 
 png("figures/task1_duration_boxplot.png", width = 1000, height = 700, res = 130)
-boxplot(ProductRelated_Duration ~ group_label, data = shop, col = unname(group_colors),
-        ylab = "Seconds", xlab = "Conversion outcome",
-        main = "Product-page duration boxplots", outline = TRUE)
+excel_plot_theme()
+boxplot(log10(ProductRelated_Duration + 1) ~ group_label, data = shop,
+        col = unname(group_colors), axes = FALSE,
+        ylab = "Product-page duration (seconds, log scale)", xlab = "Conversion outcome",
+        main = "Product-page duration by conversion outcome", outline = TRUE)
+axis(1, at = 1:2, labels = c("No purchase", "Purchase"), tick = FALSE)
+log_ticks <- c(0, 1, 2, 3, 4)
+axis(2, at = log_ticks, labels = c("0", "10", "100", "1,000", "10,000"))
+abline(h = log_ticks, col = "#D9E1F2", lwd = 1)
 dev.off()
 
 calendar_months <- c("Feb", "Mar", "May", "June", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
@@ -130,17 +149,31 @@ month_conversion <- month_conversion[order(month_conversion$Month), ]
 write.csv(month_conversion, "results/task1_conversion_by_month.csv", row.names = FALSE)
 
 png("figures/task1_conversion_by_month.png", width = 1000, height = 650, res = 130)
-barplot(month_conversion$Revenue_int, names.arg = month_conversion$Month, col = "#70AD47", border = NA,
+excel_plot_theme()
+month_bp <- barplot(month_conversion$Revenue_int, names.arg = month_conversion$Month,
+        col = "#70AD47", border = NA, ylim = c(0, 0.29), axes = FALSE,
         ylab = "Conversion rate", main = "Conversion rate by month")
+axis(1, at = month_bp, labels = month_conversion$Month, tick = FALSE)
+axis(2, at = seq(0, 0.25, 0.05), labels = paste0(seq(0, 25, 5), "%"))
+abline(h = seq(0, 0.25, 0.05), col = "#E2F0D9", lwd = 1)
+text(month_bp, month_conversion$Revenue_int + 0.012,
+     labels = sprintf("%.1f%%", 100 * month_conversion$Revenue_int), cex = 0.8)
 dev.off()
 
 visitor_conversion <- aggregate(Revenue_int ~ VisitorType, data = shop, FUN = mean)
 write.csv(visitor_conversion, "results/task1_conversion_by_visitor.csv", row.names = FALSE)
 
 png("figures/task1_conversion_by_visitor.png", width = 1000, height = 650, res = 130)
-barplot(visitor_conversion$Revenue_int, names.arg = visitor_conversion$VisitorType,
-        col = "#5B9BD5", border = NA, ylab = "Conversion rate",
+excel_plot_theme()
+visitor_bp <- barplot(visitor_conversion$Revenue_int,
+        names.arg = gsub("_", " ", visitor_conversion$VisitorType),
+        col = "#5B9BD5", border = NA, ylim = c(0, 0.28), axes = FALSE, ylab = "Conversion rate",
         main = "Conversion rate by visitor type")
+axis(1, at = visitor_bp, labels = gsub("_", " ", visitor_conversion$VisitorType), tick = FALSE)
+axis(2, at = seq(0, 0.25, 0.05), labels = paste0(seq(0, 25, 5), "%"))
+abline(h = seq(0, 0.25, 0.05), col = "#DDEBF7", lwd = 1)
+text(visitor_bp, visitor_conversion$Revenue_int + 0.012,
+     labels = sprintf("%.1f%%", 100 * visitor_conversion$Revenue_int), cex = 0.85)
 dev.off()
 
 # -----------------------------------------------------------------------------

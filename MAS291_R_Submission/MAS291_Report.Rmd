@@ -81,14 +81,14 @@ Purchase sessions view more product pages and spend more time on product-related
 
 ## Visualizations
 
-```{r, out.width='48%', fig.show='hold'}
+```{r, out.width='88%', fig.align='center'}
 knitr::include_graphics(c("figures/task1_duration_histogram.png",
                           "figures/task1_duration_boxplot.png"))
 ```
 
 The duration distribution is concentrated at lower values with a long upper tail. Purchase sessions have a larger share in longer-duration intervals, but the extreme observations make the mean less representative than the median alone.
 
-```{r, out.width='48%', fig.show='hold'}
+```{r, out.width='88%', fig.align='center'}
 knitr::include_graphics(c("figures/task1_conversion_by_month.png",
                           "figures/task1_conversion_by_visitor.png"))
 ```
