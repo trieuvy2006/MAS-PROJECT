@@ -96,10 +96,9 @@ evidence_columns <- c(
   "Informational_Duration", "ProductRelated", "ProductRelated_Duration",
   "BounceRates", "ExitRates", "PageValues", "SpecialDay", "Month",
   "OperatingSystems", "Browser", "Region", "TrafficType", "VisitorType",
-  "Weekend", "Revenue", "Revenue_int"
+  "Weekend", "Revenue", "Revenue_int", "Weekend_int", "Returning_int"
 )
 dataset_full <- shop[, evidence_columns]
-dataset_full <- cbind(STT = seq_len(nrow(dataset_full)), dataset_full)
 write.csv(dataset_full, "results/dataset_full_12330.csv", row.names = FALSE)
 
 group_label <- ifelse(shop$Revenue_int == 1, "Purchase", "No purchase")

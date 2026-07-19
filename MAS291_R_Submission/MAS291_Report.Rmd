@@ -37,7 +37,7 @@ The analysis studies engagement duration, conversion, differences between purcha
 
 ## Full dataset evidence - 12,330 sessions
 
-The table below contains the complete dataset used in the project. `STT` is the sequential row number, while `Session_ID` preserves the session identifier used by the analysis. Use the search box, column filters and page controls to inspect all 12,330 observations without expanding the report vertically.
+The table below contains the complete dataset used in the project. `Session_ID` is the sequential identifier created for each online shopping session. The final three binary columns (`Revenue_int`, `Weekend_int`, and `Returning_int`) were derived for statistical calculations. Use the search box, column filters and page controls to inspect all 12,330 observations without expanding the report vertically.
 
 ```{r dataset-evidence}
 dataset_evidence <- read_result("dataset_full_12330.csv")
