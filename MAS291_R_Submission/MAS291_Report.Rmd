@@ -86,7 +86,7 @@ knitr::include_graphics(c("figures/task1_duration_histogram.png",
                           "figures/task1_duration_boxplot.png"))
 ```
 
-The duration distribution is concentrated at lower values with a long upper tail. Purchase sessions have a larger share in longer-duration intervals, but the extreme observations make the mean less representative than the median alone.
+The duration distribution is concentrated at lower values with a long upper tail. Purchase sessions have a larger share in longer-duration intervals, but the extreme observations make the mean less representative than the median alone. The boxplot display is limited to 6,000 seconds for readability; more extreme observations remain included in all calculations and their IQR counts are reported in the descriptive-statistics table.
 
 ```{r, out.width='88%', fig.align='center'}
 knitr::include_graphics(c("figures/task1_conversion_by_month.png",

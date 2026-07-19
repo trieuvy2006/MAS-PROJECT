@@ -103,7 +103,7 @@ dataset_full <- cbind(STT = seq_len(nrow(dataset_full)), dataset_full)
 write.csv(dataset_full, "results/dataset_full_12330.csv", row.names = FALSE)
 
 group_label <- ifelse(shop$Revenue_int == 1, "Purchase", "No purchase")
-group_colors <- c("No purchase" = "#4472C4", "Purchase" = "#ED7D31")
+group_colors <- c("No purchase" = "#4F81BD", "Purchase" = "#C0504D")
 
 excel_plot_theme <- function() {
   par(bg = "white", fg = "#404040", col.axis = "#404040", col.lab = "#404040",
@@ -111,35 +111,38 @@ excel_plot_theme <- function() {
 }
 
 png("figures/task1_duration_histogram.png", width = 1200, height = 750, res = 130)
-excel_plot_theme()
 breaks <- c(0, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 64000)
 h0 <- hist(shop$ProductRelated_Duration[shop$Revenue_int == 0], breaks = breaks, plot = FALSE)
 h1 <- hist(shop$ProductRelated_Duration[shop$Revenue_int == 1], breaks = breaks, plot = FALSE)
 rates <- rbind(h0$counts / sum(shop$Revenue_int == 0), h1$counts / sum(shop$Revenue_int == 1))
-bp <- barplot(rates, beside = TRUE, col = unname(group_colors), border = NA,
+barplot(rates, beside = TRUE, col = unname(group_colors), border = NA,
         names.arg = c("0-300", "301-600", "601-1,200", "1,201-2,400", "2,401-4,800",
                       "4,801-9,600", "9,601-19,200", "19,201-38,400", "38,401-64,000"),
-        las = 2, ylab = "Share of sessions", main = "Product-page duration distribution",
-        ylim = c(0, max(rates) * 1.18), axes = FALSE)
-axis(1, at = colMeans(bp),
-     labels = c("0-300", "301-600", "601-1,200", "1,201-2,400", "2,401-4,800",
-                "4,801-9,600", "9,601-19,200", "19,201-38,400", "38,401-64,000"),
-     las = 2, tick = FALSE, cex.axis = 0.82)
-axis(2, at = seq(0, 0.4, 0.05), labels = paste0(seq(0, 40, 5), "%"))
-abline(h = seq(0, 0.4, 0.05), col = "#D9E1F2", lwd = 1)
+        las = 2, ylab = "Proportion", main = "Product-page duration by conversion")
 legend("topright", legend = names(group_colors), fill = group_colors, bty = "n")
 dev.off()
 
 png("figures/task1_duration_boxplot.png", width = 1000, height = 700, res = 130)
 excel_plot_theme()
-boxplot(log10(ProductRelated_Duration + 1) ~ group_label, data = shop,
-        col = unname(group_colors), axes = FALSE,
-        ylab = "Product-page duration (seconds, log scale)", xlab = "Conversion outcome",
-        main = "Product-page duration by conversion outcome", outline = TRUE)
+boxplot(ProductRelated_Duration ~ group_label, data = shop,
+        col = unname(group_colors), outline = FALSE, axes = FALSE,
+        ylim = c(0, 6000),
+        boxlwd = 2, medlwd = 4, whisklwd = 2, staplelwd = 2, staplewex = 0.65,
+        ylab = "Product-page duration (seconds)", xlab = "Conversion outcome",
+        main = "Product-page duration boxplot by conversion outcome")
 axis(1, at = 1:2, labels = c("No purchase", "Purchase"), tick = FALSE)
-log_ticks <- c(0, 1, 2, 3, 4)
-axis(2, at = log_ticks, labels = c("0", "10", "100", "1,000", "10,000"))
-abline(h = log_ticks, col = "#D9E1F2", lwd = 1)
+axis(2, at = seq(0, 6000, 1000), labels = format(seq(0, 6000, 1000), big.mark = ","))
+abline(h = seq(0, 6000, 1000), col = "#D9E1F2", lwd = 1)
+representative_outliers <- function(x, maximum = 6000, count = 6) {
+  values <- sort(boxplot.stats(x)$out)
+  values <- values[values <= maximum]
+  if (length(values) <= count) return(values)
+  unique(as.numeric(quantile(values, probs = seq(0.15, 0.95, length.out = count), names = FALSE)))
+}
+np_out <- representative_outliers(shop$ProductRelated_Duration[shop$Revenue_int == 0])
+p_out <- representative_outliers(shop$ProductRelated_Duration[shop$Revenue_int == 1])
+points(rep(1, length(np_out)), np_out, pch = 21, bg = "white", col = "#404040", cex = 0.8)
+points(rep(2, length(p_out)), p_out, pch = 21, bg = "white", col = "#404040", cex = 0.8)
 dev.off()
 
 calendar_months <- c("Feb", "Mar", "May", "June", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
