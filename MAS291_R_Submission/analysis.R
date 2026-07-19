@@ -21,7 +21,12 @@ shop$Returning_int <- as.integer(shop$VisitorType == "Returning_Visitor")
 shop$Session_ID <- seq_len(nrow(shop))
 
 alpha <- 0.05
-variables <- c("ProductRelated", "ProductRelated_Duration", "BounceRates", "ExitRates", "PageValues")
+numeric_variables <- c(
+  "Administrative", "Administrative_Duration", "Informational",
+  "Informational_Duration", "ProductRelated", "ProductRelated_Duration",
+  "BounceRates", "ExitRates", "PageValues", "SpecialDay"
+)
+variables <- numeric_variables
 
 excel_skew <- function(x) {
   x <- x[is.finite(x)]
@@ -109,26 +114,51 @@ excel_plot_theme <- function() {
       family = "sans", mar = c(5.5, 5, 3.5, 1.5), las = 1)
 }
 
-png("figures/task1_duration_histogram.png", width = 1200, height = 750, res = 130)
+excel_kurt <- function(x) {
+  x <- x[is.finite(x)]
+  n <- length(x)
+  s <- sd(x)
+  if (n < 4 || s == 0) return(NA_real_)
+  z4 <- sum(((x - mean(x)) / s)^4)
+  n * (n + 1) / ((n - 1) * (n - 2) * (n - 3)) * z4 -
+    3 * (n - 1)^2 / ((n - 2) * (n - 3))
+}
+
+sample_mode <- function(x) {
+  tab <- table(x)
+  as.numeric(names(tab)[which.max(tab)])
+}
+
+png("figures/task1_duration_histogram.png", width = 1200, height = 780, res = 130)
+par(mar = c(9, 5, 3.5, 1.5), las = 1)
 breaks <- c(0, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 64000)
 h0 <- hist(shop$ProductRelated_Duration[shop$Revenue_int == 0], breaks = breaks, plot = FALSE)
 h1 <- hist(shop$ProductRelated_Duration[shop$Revenue_int == 1], breaks = breaks, plot = FALSE)
 rates <- rbind(h0$counts / sum(shop$Revenue_int == 0), h1$counts / sum(shop$Revenue_int == 1))
-barplot(rates, beside = TRUE, col = unname(group_colors), border = NA,
-        names.arg = c("0-300", "301-600", "601-1,200", "1,201-2,400", "2,401-4,800",
-                      "4,801-9,600", "9,601-19,200", "19,201-38,400", "38,401-64,000"),
-        las = 2, ylab = "Proportion", main = "Product-page duration by conversion")
+duration_bp <- barplot(rates, beside = TRUE, col = unname(group_colors), border = NA,
+        names.arg = c("0-300", "301-600", "601-1.2k", "1.2k-2.4k", "2.4k-4.8k",
+                      "4.8k-9.6k", "9.6k-19.2k", "19.2k-38.4k", "38.4k-64k"),
+        las = 2, ylim = c(0, 0.43), ylab = "Share within each outcome group", xlab = "",
+        main = "Distribution of product-page duration within purchase outcomes")
+duration_label_y <- rates + 0.012
+close_pairs <- abs(rates[1, ] - rates[2, ]) < 0.018
+duration_label_y[2, close_pairs] <- duration_label_y[2, close_pairs] + 0.018
+text(duration_bp, duration_label_y,
+     labels = sprintf("%.1f%%", 100 * rates), cex = 0.68, xpd = NA)
+mtext("Product-page duration interval (seconds)", side = 1, line = 7.2)
 legend("topright", legend = names(group_colors), fill = group_colors, bty = "n")
 dev.off()
 
 png("figures/task1_duration_boxplot.png", width = 1000, height = 700, res = 130)
 excel_plot_theme()
+par(mar = c(5.5, 7, 3.5, 1.5))
 boxplot(ProductRelated_Duration ~ group_label, data = shop,
         col = unname(group_colors), outline = FALSE, axes = FALSE,
         ylim = c(0, 6000),
         boxlwd = 2, medlwd = 4, whisklwd = 2, staplelwd = 2, staplewex = 0.65,
-        ylab = "Product-page duration (seconds)", xlab = "Conversion outcome",
+        ylab = "", xlab = "Conversion outcome",
         main = "Product-page duration boxplot by conversion outcome")
+mtext("Product-page duration (seconds)", side = 2, line = 4.2, las = 0)
 axis(1, at = 1:2, labels = c("No purchase", "Purchase"), tick = FALSE)
 axis(2, at = seq(0, 6000, 1000), labels = format(seq(0, 6000, 1000), big.mark = ","))
 abline(h = seq(0, 6000, 1000), col = "#D9E1F2", lwd = 1)
@@ -154,7 +184,8 @@ png("figures/task1_conversion_by_month.png", width = 1000, height = 650, res = 1
 excel_plot_theme()
 month_bp <- barplot(month_conversion$Revenue_int, names.arg = month_conversion$Month,
         col = "#70AD47", border = NA, ylim = c(0, 0.29), axes = FALSE,
-        ylab = "Conversion rate", main = "Conversion rate by month")
+        ylab = "Purchase sessions / all sessions in month",
+        main = "Purchase conversion rate within each month")
 axis(1, at = month_bp, labels = month_conversion$Month, tick = FALSE)
 axis(2, at = seq(0, 0.25, 0.05), labels = paste0(seq(0, 25, 5), "%"))
 abline(h = seq(0, 0.25, 0.05), col = "#E2F0D9", lwd = 1)
@@ -163,19 +194,31 @@ text(month_bp, month_conversion$Revenue_int + 0.012,
 dev.off()
 
 visitor_conversion <- aggregate(Revenue_int ~ VisitorType, data = shop, FUN = mean)
-write.csv(visitor_conversion, "results/task1_conversion_by_visitor.csv", row.names = FALSE)
+visitor_levels <- c("New_Visitor", "Other", "Returning_Visitor")
+visitor_conversion$VisitorType <- factor(visitor_conversion$VisitorType, levels = visitor_levels)
+visitor_conversion <- visitor_conversion[order(visitor_conversion$VisitorType), ]
+visitor_outcomes <- data.frame(
+  VisitorType = as.character(visitor_conversion$VisitorType),
+  No_purchase = 1 - visitor_conversion$Revenue_int,
+  Purchase = visitor_conversion$Revenue_int
+)
+write.csv(visitor_outcomes, "results/task1_conversion_by_visitor.csv", row.names = FALSE)
 
 png("figures/task1_conversion_by_visitor.png", width = 1000, height = 650, res = 130)
 excel_plot_theme()
-visitor_bp <- barplot(visitor_conversion$Revenue_int,
-        names.arg = gsub("_", " ", visitor_conversion$VisitorType),
-        col = "#5B9BD5", border = NA, ylim = c(0, 0.28), axes = FALSE, ylab = "Conversion rate",
-        main = "Conversion rate by visitor type")
-axis(1, at = visitor_bp, labels = gsub("_", " ", visitor_conversion$VisitorType), tick = FALSE)
-axis(2, at = seq(0, 0.25, 0.05), labels = paste0(seq(0, 25, 5), "%"))
-abline(h = seq(0, 0.25, 0.05), col = "#DDEBF7", lwd = 1)
-text(visitor_bp, visitor_conversion$Revenue_int + 0.012,
-     labels = sprintf("%.1f%%", 100 * visitor_conversion$Revenue_int), cex = 0.85)
+par(mar = c(6.5, 5, 3.5, 1.5))
+visitor_rates <- rbind(visitor_outcomes$No_purchase, visitor_outcomes$Purchase)
+visitor_bp <- barplot(visitor_rates, beside = TRUE,
+        names.arg = visitor_outcomes$VisitorType,
+        col = c("#4F81BD", "#C0504D"), border = NA,
+        ylim = c(0, 1), axes = FALSE, ylab = "Proportion within visitor type",
+        main = "Purchase outcome within visitor type")
+axis(1, at = colMeans(visitor_bp), labels = visitor_outcomes$VisitorType, tick = FALSE)
+axis(2, at = seq(0, 1, 0.2), labels = paste0(seq(0, 100, 20), "%"))
+abline(h = seq(0, 1, 0.2), col = "#D9D9D9", lwd = 1, lty = 2)
+legend("bottom", inset = c(0, -0.25), xpd = TRUE, horiz = TRUE,
+       legend = c("No purchase", "Purchase"),
+       fill = c("#4F81BD", "#C0504D"), bty = "n")
 dev.off()
 
 # -----------------------------------------------------------------------------
