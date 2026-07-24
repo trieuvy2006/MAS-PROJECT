@@ -330,32 +330,51 @@ coef_table <- model_summary$coefficients
 r_value <- cor(shop$ProductRelated, shop$ProductRelated_Duration)
 r_squared <- model_summary$r.squared
 slope_ci <- confint(model, "ProductRelated", level = 0.95)
+slope_p <- coef_table["ProductRelated", "Pr(>|t|)"]
+slope_p_display <- if (slope_p < 0.001) "< 0.001" else sprintf("%.4f", slope_p)
+residual_df <- df.residual(model)
+residuals_model <- residuals(model)
+sse <- sum(residuals_model^2)
+mse <- sse / residual_df
+sxx <- sum((shop$ProductRelated - mean(shop$ProductRelated))^2)
+t_critical <- qt(1 - alpha / 2, df = residual_df)
 
 task4_model <- data.frame(
-  Measure = c("Observations n", "Correlation r", "R squared", "Intercept", "Slope",
-              "Residual standard error", "Slope standard error", "Slope t statistic",
+  Measure = c("Observations n", "Correlation r", "R squared", "Intercept b0", "Slope b1",
+              "Sxx", "SSE", "Residual degrees of freedom", "MSE",
+              "Residual standard error", "Slope standard error", "Slope t statistic", "Two-sided t critical",
               "Slope p-value", "Slope 95% lower", "Slope 95% upper", "Decision"),
   Value = c(nrow(shop), r_value, r_squared, coef(model)[1], coef(model)[2],
+            sxx, sse, residual_df, mse,
             model_summary$sigma, coef_table["ProductRelated", "Std. Error"],
-            coef_table["ProductRelated", "t value"], coef_table["ProductRelated", "Pr(>|t|)"],
+            coef_table["ProductRelated", "t value"], t_critical, slope_p_display,
             slope_ci[1], slope_ci[2],
-            ifelse(coef_table["ProductRelated", "Pr(>|t|)"] < alpha, "Reject H0", "Fail to reject H0"))
+            ifelse(slope_p < alpha, "Reject H0", "Fail to reject H0"))
 )
 
 prediction_x <- data.frame(ProductRelated = c(10, 25, 50, 100, 200))
-prediction_table <- cbind(prediction_x,
-                          as.data.frame(predict(model, newdata = prediction_x, interval = "confidence")))
+prediction_ci <- as.data.frame(predict(model, newdata = prediction_x, interval = "confidence"))
+prediction_table <- data.frame(
+  Pages_viewed = prediction_x$ProductRelated,
+  Predicted_mean_seconds = prediction_ci$fit,
+  Mean_CI_95_lower = prediction_ci$lwr,
+  Mean_CI_95_upper = prediction_ci$upr,
+  Predicted_mean_minutes = prediction_ci$fit / 60
+)
 write.csv(task4_model, "results/task4_regression_model.csv", row.names = FALSE)
 write.csv(prediction_table, "results/task4_predictions.csv", row.names = FALSE)
 
 png("figures/task4_scatter_regression.png", width = 1100, height = 750, res = 130)
 plot(shop$ProductRelated, shop$ProductRelated_Duration,
      pch = 16, cex = 0.35, col = rgb(0.20, 0.45, 0.75, 0.25),
+     xlim = c(0, 200), ylim = c(0, 12000),
      xlab = "Number of product-related pages viewed",
      ylab = "Product-related duration (seconds)",
-     main = "Product pages viewed and total product-page duration")
+     main = "Product pages viewed and total product-page duration",
+     sub = "Display zoom: 0-200 pages and 0-12,000 seconds; model uses all observations")
 abline(model, col = "#C0504D", lwd = 3)
-legend("topleft", legend = sprintf("Y-hat = %.3f + %.3fX; r = %.3f", coef(model)[1], coef(model)[2], r_value),
+legend("topleft", legend = sprintf("Y-hat = %.3f + %.3fX; r = %.3f; R-squared = %.3f",
+                                    coef(model)[1], coef(model)[2], r_value, r_squared),
        bty = "n", text.col = "#C0504D")
 dev.off()
 

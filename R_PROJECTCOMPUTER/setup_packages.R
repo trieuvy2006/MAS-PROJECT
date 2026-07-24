@@ -1,4 +1,4 @@
-required_packages <- c("rmarkdown", "knitr", "DT")
+required_packages <- c("rmarkdown", "knitr", "DT", "plotly")
 dir.create("r-library", showWarnings = FALSE, recursive = TRUE)
 project_library <- normalizePath("r-library")
 .libPaths(c(project_library, .libPaths()))

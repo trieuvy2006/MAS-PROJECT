@@ -30,9 +30,4 @@ Author: Gábor Csárdi [aut, cre]
 Maintainer: Gábor Csárdi <csardi.gabor@gmail.com>
 Repository: CRAN
 Date/Publication: 2025-08-29 13:30:07 UTC
-Built: R 4.6.1; ; 2026-07-16 00:58:59 UTC; windows
-RemoteType: standard
-RemotePkgRef: otel
-RemoteRef: otel
-RemoteRepos: https://cloud.r-project.org
-RemoteSha.Version: 0.2.0
+Built: R 4.6.1; ; 2026-07-21 01:02:21 UTC; windows

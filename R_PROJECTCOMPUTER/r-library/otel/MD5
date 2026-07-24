@@ -1,4 +1,4 @@
-48d107f77dc7922b5c91264ae78c2d9d *DESCRIPTION
+d6d8edc58956e452e038622e411d31f9 *DESCRIPTION
 9c8403fd44fc1e1b6dc989a185874d19 *INDEX
 e9d10ebc667bbdeabee064034b9af4c4 *LICENSE
 9d90c1ead2e232a08ce448fc37d8ebf1 *Meta/Rd.rds
@@ -6,7 +6,7 @@ e9d10ebc667bbdeabee064034b9af4c4 *LICENSE
 13ca4c51362e418ba74d99eeb751db4e *Meta/hsearch.rds
 54b14ee8c1bcbd4203bedec8cf5c2e23 *Meta/links.rds
 cc2e7869ca3db97fe9e3e8b547e5dd90 *Meta/nsInfo.rds
-38eb3e593dc52ddafaaacd4113558379 *Meta/package.rds
+61b09b434fa8eb431943105d55338f07 *Meta/package.rds
 874853ae0d8a6fe89b873130f7883ef1 *NAMESPACE
 3d4de39386dcc37ee27b70d046a6f0dc *NEWS.md
 d6c68f1fe41ced6e98a766a3757313da *R/otel
@@ -30,8 +30,8 @@ d69a62170da5d6080fffc4efb506f145 *air.toml
 dd48d4893cd97cf16f71566c81cace33 *dox/version-support.Rmd
 f16c7be0363eabf39501e8a2ef7462b8 *help/AnIndex
 d5d72a33e738a838e4be1d8120b53ca5 *help/aliases.rds
-2bc06a24eafd121a6c99356a5c9805e8 *help/otel.rdb
-3e1442fa450a818f86030fd6b331a303 *help/otel.rdx
-127ec8fa1d603c28d65b490ff5fbce56 *help/paths.rds
+589ab0edc5deb8cd41dfd1500a4bd5c4 *help/otel.rdb
+2a694a05a3f4f6d8cadfd7646034d837 *help/otel.rdx
+6f68715cb5449e72702ce752b11b57a2 *help/paths.rds
 2b14b04c8547d34753ac446df2ce399d *html/00Index.html
 ee41876c0116916bb04bcf4fe3e43d78 *html/R.css

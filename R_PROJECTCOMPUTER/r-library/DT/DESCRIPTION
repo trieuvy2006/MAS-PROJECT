@@ -65,9 +65,4 @@ Author: Yihui Xie [aut],
 Maintainer: Garrick Aden-Buie <garrick@posit.co>
 Repository: CRAN
 Date/Publication: 2025-09-02 22:00:06 UTC
-Built: R 4.6.1; ; 2026-07-16 03:17:27 UTC; windows
-RemoteType: standard
-RemotePkgRef: DT
-RemoteRef: DT
-RemoteRepos: https://cloud.r-project.org
-RemoteSha.Version: 0.34.0
+Built: R 4.6.1; ; 2026-07-21 03:09:52 UTC; windows

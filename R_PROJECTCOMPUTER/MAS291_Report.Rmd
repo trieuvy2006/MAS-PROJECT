@@ -24,8 +24,13 @@ dir.create("r-library", showWarnings = FALSE, recursive = TRUE)
 .libPaths(c(normalizePath("r-library"), .libPaths()))
 if (!file.exists("results/task1_structure_quality.csv")) source("analysis.R")
 read_result <- function(name) read.csv(file.path("results", name), check.names = FALSE)
-if (!requireNamespace("DT", quietly = TRUE)) {
-  stop("Package 'DT' is required. Run setup_packages.R, then Knit again.")
+required_report_packages <- c("DT", "plotly")
+missing_report_packages <- required_report_packages[
+  !vapply(required_report_packages, requireNamespace, logical(1), quietly = TRUE)
+]
+if (length(missing_report_packages) > 0) {
+  stop("Missing report packages: ", paste(missing_report_packages, collapse = ", "),
+       ". Run setup_packages.R, then Knit again.")
 }
 ```
 
@@ -141,19 +146,108 @@ The returning-visitor shares differ significantly. This comparison concerns grou
 
 # Task 4 - Simple Linear Regression
 
-X is the number of product-related pages viewed, and Y is total product-page duration in seconds. These variables form an interpretable engagement model: viewing more product pages should generally require more total browsing time.
+X is the number of product-related pages viewed, and Y is total product-page duration in seconds. These variables form an interpretable engagement model: viewing more product pages should generally require more total browsing time. To keep interaction reliable on presentation computers, the chart displays a fixed stratified sample of 2,000 sessions and zooms to 0--200 pages and 0--12,000 seconds, where the main data cluster can be inspected clearly. The fitted line and every reported statistic still use all 12,330 observations.
 
-```{r}
-knitr::include_graphics("figures/task4_scatter_regression.png")
+```{r task4-interactive-chart, fig.height=7, out.width='100%'}
+task4_data <- read_result("dataset_full_12330.csv")
+task4_data$Purchase_outcome <- ifelse(task4_data$Revenue_int == 1, "Purchase", "No purchase")
+task4_data$hover_text <- sprintf(
+  "Session: %s<br>Pages viewed: %s<br>Duration: %.2f seconds<br>Revenue: %s",
+  task4_data$Session_ID,
+  task4_data$ProductRelated,
+  task4_data$ProductRelated_Duration,
+  task4_data$Purchase_outcome
+)
+
+task4_model_for_chart <- lm(ProductRelated_Duration ~ ProductRelated, data = task4_data)
+regression_line <- data.frame(
+  ProductRelated = seq(0, 200, length.out = 250)
+)
+regression_line$ProductRelated_Duration <- predict(task4_model_for_chart, newdata = regression_line)
+
+set.seed(291)
+no_purchase_rows <- which(task4_data$Revenue_int == 0)
+purchase_rows <- which(task4_data$Revenue_int == 1)
+chart_rows <- c(
+  sample(no_purchase_rows, 1600),
+  sample(purchase_rows, 400)
+)
+chart_data <- task4_data[chart_rows, , drop = FALSE]
+no_purchase <- chart_data$Revenue_int == 0
+purchase <- chart_data$Revenue_int == 1
+
+task4_plot <- plotly::plot_ly() |>
+  plotly::add_markers(
+    x = chart_data$ProductRelated[no_purchase],
+    y = chart_data$ProductRelated_Duration[no_purchase],
+    text = chart_data$hover_text[no_purchase],
+    name = "No purchase",
+    hoverinfo = "text",
+    marker = list(size = 5, opacity = 0.35, color = "#4F81BD")
+  ) |>
+  plotly::add_markers(
+    x = chart_data$ProductRelated[purchase],
+    y = chart_data$ProductRelated_Duration[purchase],
+    text = chart_data$hover_text[purchase],
+    name = "Purchase",
+    hoverinfo = "text",
+    marker = list(size = 5, opacity = 0.45, color = "#C0504D")
+  ) |>
+  plotly::add_lines(
+    x = regression_line$ProductRelated,
+    y = regression_line$ProductRelated_Duration,
+    name = "Fitted regression line",
+    line = list(color = "#D62728", width = 3),
+    hovertemplate = "Pages: %{x:.1f}<br>Fitted duration: %{y:.2f} seconds<extra></extra>"
+  ) |>
+  plotly::layout(
+    title = "Product pages viewed vs product-page duration",
+    xaxis = list(
+      title = "Number of product-related pages viewed",
+      range = c(0, 200),
+      dtick = 25
+    ),
+    yaxis = list(
+      title = "Product-related duration (seconds)",
+      range = c(0, 12000),
+      dtick = 2000
+    ),
+    legend = list(orientation = "h", x = 0, y = 1.10),
+    hovermode = "closest",
+    margin = list(t = 95, r = 30, b = 75, l = 90),
+    height = 620
+  ) |>
+  plotly::config(
+    displaylogo = FALSE,
+    responsive = TRUE,
+    modeBarButtonsToRemove = list("lasso2d"),
+    toImageButtonOptions = list(filename = "task4_regression_chart")
+  )
+
+task4_plot
 ```
 
-The scatter plot shows a strong positive and approximately linear relationship, with increasing spread at high page counts.
+During the presentation, hover over a displayed point to inspect its session ID, page count, duration and purchase outcome. Use the toolbar to zoom, select an area, pan and reset the axes. Click a legend item to hide or show a purchase group. The 2,000 displayed sessions consist of 1,600 non-purchase and 400 purchase sessions selected with a fixed seed for reproducibility. The static PNG in `figures/` shows all observations and remains available as a submission and offline fallback.
+
+The scatter plot shows a strong positive and approximately linear relationship, with increasing spread at high page counts. The correlation is approximately $r=0.861$, indicating a strong positive linear association. The coefficient of determination is $R^2=0.741$, so the page count explains about 74.1% of the observed variation in total product-page duration; the remaining variation is associated with other factors and random error.
 
 ```{r}
 knitr::kable(read_result("task4_regression_model.csv"), table.attr = 'class="report-table"')
 ```
 
-The fitted equation is approximately Y-hat = 19.30 + 37.04X. Each additional product page is associated with about 37 additional seconds of product-page time on average. The slope is statistically different from zero. The model measures engagement mechanics and should not be interpreted as a causal model of purchase completion.
+The fitted equation is
+
+$$\widehat{Y}=19.301+37.044X.$$
+
+The intercept means that the fitted duration is about 19.3 seconds when zero product pages are recorded; it mainly anchors the line and has limited behavioral importance. The slope means that each additional product page viewed is associated with an average increase of about 37.04 seconds in total product-page duration.
+
+## Test of the regression slope
+
+At $\alpha=0.05$, the hypotheses are:
+
+$$H_0:\beta_1=0 \qquad\text{versus}\qquad H_1:\beta_1\ne0.$$
+
+The test statistic is $t=187.900$ with $12,328$ residual degrees of freedom. The two-sided p-value is below 0.001 and $|t|$ exceeds the critical value of approximately 1.960. Therefore, reject $H_0$: there is statistically significant evidence of a linear relationship between page count and total product-page duration. The 95% confidence interval for the population slope is approximately $(36.657,37.430)$ seconds per page, which also excludes zero. The residual standard error is approximately 973.58 seconds, showing that individual sessions can still deviate substantially from the fitted line. This model establishes association, not causation.
 
 ## Predictions
 
@@ -161,6 +255,8 @@ The fitted equation is approximately Y-hat = 19.30 + 37.04X. Each additional pro
 knitr::kable(read_result("task4_predictions.csv"), digits = 2,
              table.attr = 'class="report-table"')
 ```
+
+These are fitted **mean durations** and 95% confidence intervals for the mean response, not guaranteed durations for individual sessions. For example, at 50 product pages, the model predicts a mean duration of about 1,871.48 seconds (31.19 minutes), with a 95% confidence interval of approximately 1,852.90 to 1,890.06 seconds. A prediction interval for one future session would be wider.
 
 # Task 5 - Final Interpretation
 

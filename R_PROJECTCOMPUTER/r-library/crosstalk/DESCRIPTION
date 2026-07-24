@@ -63,9 +63,4 @@ Author: Joe Cheng [aut],
 Maintainer: Carson Sievert <carson@posit.co>
 Repository: CRAN
 Date/Publication: 2025-08-26 23:50:02 UTC
-Built: R 4.6.1; ; 2026-07-16 02:15:55 UTC; windows
-RemoteType: standard
-RemotePkgRef: crosstalk
-RemoteRef: crosstalk
-RemoteRepos: https://cloud.r-project.org
-RemoteSha.Version: 1.2.2
+Built: R 4.6.1; ; 2026-07-21 02:11:11 UTC; windows

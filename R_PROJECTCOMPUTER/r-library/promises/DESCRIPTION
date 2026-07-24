@@ -46,9 +46,4 @@ Author: Joe Cheng [aut],
 Maintainer: Barret Schloerke <barret@posit.co>
 Repository: CRAN
 Date/Publication: 2025-11-01 06:30:02 UTC
-Built: R 4.6.1; ; 2026-07-16 02:15:43 UTC; windows
-RemoteType: standard
-RemotePkgRef: promises
-RemoteRef: promises
-RemoteRepos: https://cloud.r-project.org
-RemoteSha.Version: 1.5.0
+Built: R 4.6.1; ; 2026-07-21 02:11:10 UTC; windows

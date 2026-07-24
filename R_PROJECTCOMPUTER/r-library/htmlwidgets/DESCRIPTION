@@ -39,9 +39,4 @@ Author: Ramnath Vaidyanathan [aut, cph],
 Maintainer: Carson Sievert <carson@posit.co>
 Repository: CRAN
 Date/Publication: 2023-12-06 06:00:06 UTC
-Built: R 4.6.1; ; 2026-07-16 03:17:17 UTC; windows
-RemoteType: standard
-RemotePkgRef: htmlwidgets
-RemoteRef: htmlwidgets
-RemoteRepos: https://cloud.r-project.org
-RemoteSha.Version: 1.6.4
+Built: R 4.6.1; ; 2026-07-21 03:09:35 UTC; windows

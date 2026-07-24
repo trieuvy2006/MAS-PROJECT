@@ -46,10 +46,5 @@ Author: Winston Chang [aut] (ORCID: <https://orcid.org/0000-0002-1576-2126>),
 Maintainer: Charlie Gao <charlie.gao@posit.co>
 Repository: CRAN
 Date/Publication: 2026-03-05 07:50:02 UTC
-Built: R 4.6.1; x86_64-w64-mingw32; 2026-07-16 01:55:44 UTC; windows
+Built: R 4.6.1; x86_64-w64-mingw32; 2026-07-21 01:50:47 UTC; windows
 Archs: x64
-RemoteType: standard
-RemotePkgRef: later
-RemoteRef: later
-RemoteRepos: https://cloud.r-project.org
-RemoteSha.Version: 1.4.8

@@ -22,10 +22,5 @@ Author: Hadley Wickham [aut, cre],
 Maintainer: Hadley Wickham <hadley@rstudio.com>
 Repository: CRAN
 Date/Publication: 2026-04-04 05:10:53 UTC
-Built: R 4.6.1; x86_64-w64-mingw32; 2026-07-16 00:59:36 UTC; windows
+Built: R 4.6.1; x86_64-w64-mingw32; 2026-07-21 01:02:52 UTC; windows
 Archs: x64
-RemoteType: standard
-RemotePkgRef: lazyeval
-RemoteRef: lazyeval
-RemoteRepos: https://cloud.r-project.org
-RemoteSha.Version: 0.2.3
