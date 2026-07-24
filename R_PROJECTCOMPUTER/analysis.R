@@ -129,24 +129,46 @@ sample_mode <- function(x) {
   as.numeric(names(tab)[which.max(tab)])
 }
 
-png("figures/task1_duration_histogram.png", width = 1200, height = 780, res = 130)
-par(mar = c(9, 5, 3.5, 1.5), las = 1)
-breaks <- c(0, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 64000)
-h0 <- hist(shop$ProductRelated_Duration[shop$Revenue_int == 0], breaks = breaks, plot = FALSE)
-h1 <- hist(shop$ProductRelated_Duration[shop$Revenue_int == 1], breaks = breaks, plot = FALSE)
-rates <- rbind(h0$counts / sum(shop$Revenue_int == 0), h1$counts / sum(shop$Revenue_int == 1))
-duration_bp <- barplot(rates, beside = TRUE, col = unname(group_colors), border = NA,
-        names.arg = c("0-300", "301-600", "601-1.2k", "1.2k-2.4k", "2.4k-4.8k",
-                      "4.8k-9.6k", "9.6k-19.2k", "19.2k-38.4k", "38.4k-64k"),
-        las = 2, ylim = c(0, 0.43), ylab = "Share within each outcome group", xlab = "",
-        main = "Distribution of product-page duration within purchase outcomes")
-duration_label_y <- rates + 0.012
-close_pairs <- abs(rates[1, ] - rates[2, ]) < 0.018
-duration_label_y[2, close_pairs] <- duration_label_y[2, close_pairs] + 0.018
-text(duration_bp, duration_label_y,
-     labels = sprintf("%.1f%%", 100 * rates), cex = 0.68, xpd = NA)
-mtext("Product-page duration interval (seconds)", side = 1, line = 7.2)
-legend("topright", legend = names(group_colors), fill = group_colors, bty = "n")
+png("figures/task1_duration_histogram.png", width = 1200, height = 650, res = 130)
+excel_plot_theme()
+par(mar = c(7.0, 6.5, 4.5, 1.5), las = 1)
+
+duration <- shop$ProductRelated_Duration
+regular_breaks <- seq(0, 6000, by = 300)
+regular_counts <- hist(
+  duration[duration <= 6000],
+  breaks = regular_breaks,
+  plot = FALSE,
+  right = FALSE,
+  include.lowest = TRUE
+)$counts
+overflow_count <- sum(duration > 6000)
+histogram_counts <- c(regular_counts, overflow_count)
+histogram_labels <- c(
+  paste0(
+    format(regular_breaks[-length(regular_breaks)], big.mark = ","),
+    "\u2013",
+    format(regular_breaks[-1], big.mark = ",")
+  ),
+  ">6,000"
+)
+
+hist_bp <- barplot(
+  histogram_counts,
+  space = 0,
+  col = "#4F81BD",
+  border = "white",
+  names.arg = rep("", length(histogram_labels)),
+  las = 2,
+  ylab = "Frequency (number of sessions)",
+  xlab = "",
+  main = "Histogram of product-page duration (300-second bins; last bar >6,000)"
+)
+histogram_tick_index <- unique(c(seq(1, length(hist_bp), by = 3), length(hist_bp)))
+axis(1, at = hist_bp[histogram_tick_index],
+     labels = histogram_labels[histogram_tick_index],
+     las = 2, tick = FALSE, line = -0.5)
+mtext("Product-page duration interval (seconds)", side = 1, line = 5.8)
 dev.off()
 
 png("figures/task1_duration_boxplot.png", width = 1000, height = 700, res = 130)

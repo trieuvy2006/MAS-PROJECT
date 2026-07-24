@@ -86,7 +86,7 @@ knitr::include_graphics(c("figures/task1_duration_histogram.png",
                           "figures/task1_duration_boxplot.png"))
 ```
 
-In the interval chart, each color is normalized within its own purchase-outcome group, so the blue bars together sum to 100% and the red bars together sum to 100%. The duration distribution is concentrated at lower values with a long upper tail. Purchase sessions have a larger share in longer-duration intervals, but the extreme observations make the mean less representative than the median alone. The boxplot display is limited to 6,000 seconds for readability; more extreme observations remain included in all calculations and their IQR counts are reported in the descriptive-statistics table.
+The histogram uses 300-second intervals for all 12,330 sessions. Most sessions are concentrated in the lower-duration bins, and the frequencies decline as duration increases, showing a strongly right-skewed distribution. The last bar is an overflow bin for sessions above 6,000 seconds, so no observations are removed. The boxplot compares purchase and non-purchase sessions and displays the 0–6,000 second range for readability; more extreme observations remain included in all calculations and their IQR counts are reported in the descriptive-statistics table.
 
 ```{r, out.width='88%', fig.align='center'}
 knitr::include_graphics(c("figures/task1_conversion_by_month.png",
