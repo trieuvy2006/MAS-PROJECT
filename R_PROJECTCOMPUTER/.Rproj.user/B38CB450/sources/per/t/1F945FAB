@@ -1,24 +1,24 @@
 {
-    "id": "93A96A0E",
-    "path": "D:/GitHub/MAS-PROJECT/R_PROJECTCOMPUTER/styles.css",
-    "project_path": "styles.css",
-    "type": "css",
-    "hash": "390001609",
+    "id": "1F945FAB",
+    "path": "D:/GitHub/MAS-PROJECT/R_PROJECTCOMPUTER/analysis.R",
+    "project_path": "analysis.R",
+    "type": "r_source",
+    "hash": "3923632452",
     "contents": "",
     "dirty": false,
-    "created": 1784474048218.0,
+    "created": 1784521168491.0,
     "source_on_save": false,
-    "relative_order": 3,
+    "relative_order": 4,
     "properties": {
         "source_window_id": "",
         "Source": "Source"
     },
     "folds": "",
-    "lastKnownWriteTime": 1784434250,
+    "lastKnownWriteTime": 1784479035,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1784434250,
+    "last_content_update": 1784479035,
     "read_only": false,
     "read_only_alternatives": []
 }
